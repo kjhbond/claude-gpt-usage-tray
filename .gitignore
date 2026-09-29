@@ -1,0 +1,29 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local Windhawk runtime, generated installers, and build outputs.
+/Windhawk/
+/release/
+/*.exe
+/*.dll
+/*.whl
+
+# Account identity, live quota state, and machine-specific paths.
+/*-info.ini
+/*-quota.json
+/quota.json
+/display.txt
+/claude-display.txt
+/pythonw-path.txt
+/startup-error.txt
+*.tmp
+
+# Local desktop captures and inspection output.
+/hover-*.png
+/taskbar-*.png
+/codex-taskbar-*.png
+/claude-taskbar-*.png
+/measurements*.json
+/verification-*.json

@@ -1,0 +1,22 @@
+Codex + Claude Quota Tray for Windows 11 x64
+
+Run CodexClaudeQuotaTray-Setup.exe under the Windows account that uses the taskbar.
+The installer places the widget in %USERPROFILE%\CodexQuotaWidget and registers it
+to start when that account signs in. It can be run again to update the widget.
+
+Requirements
+- Python 3 with pythonw.exe available from the python or py command.
+- Codex CLI installed via npm and signed in to the desired ChatGPT account.
+- Claude Code installed via npm and signed in to the desired Claude account.
+- Internet access for the quota checks and, on a new Windows build, Windhawk's
+  taskbar symbol lookup.
+
+The widget shows --% for a provider until its CLI login and quota read work.
+No login tokens, account labels, or prior quota results are included in the
+installer. The widget reads existing login state on the installed computer.
+
+To stop it and remove login startup, run:
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%USERPROFILE%\CodexQuotaWidget\uninstall.ps1"
+
+Installer log: %TEMP%\CodexClaudeQuotaTray-Setup.log
+Windhawk and taskbar mod source notices: %USERPROFILE%\CodexQuotaWidget\reference\COPYING
