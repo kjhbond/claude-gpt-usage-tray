@@ -1,0 +1,17 @@
+name: 개선 제안
+description: 사용성과 호환성 개선 아이디어를 제안해 주세요.
+title: "[개선] "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: 어떤 상황에서 불편한가요?
+      description: 사용 중 겪은 상황을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 어떤 동작을 원하나요?
+    validations:
+      required: true

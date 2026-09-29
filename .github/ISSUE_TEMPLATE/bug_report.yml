@@ -1,0 +1,51 @@
+name: 오류 신고
+description: 한도 표시, 설치 또는 작업 표시줄 문제를 알려주세요.
+title: "[오류] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        먼저 [문제 해결 안내](https://github.com/kjhbond/claude-gpt-usage-tray/blob/main/docs/TROUBLESHOOTING.md)를 확인해 주세요.
+        토큰, 계정 이메일, 자격 증명 파일, 조회 JSON 전체는 첨부하지 마세요.
+  - type: dropdown
+    id: area
+    attributes:
+      label: 문제가 있는 곳
+      options:
+        - 설치
+        - Codex 한도
+        - Claude Code 한도
+        - 작업 표시줄 아이콘 또는 메뉴
+        - 기타
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: 실제 동작
+      description: 화면에 보이는 내용과 반복 방법을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대한 동작
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows 버전
+      placeholder: "예: Windows 11 24H2 x64"
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: 위젯·CLI 버전
+      description: 릴리스 버전과 codex --version, claude --version 결과를 적어 주세요.
+  - type: textarea
+    id: sanitized
+    attributes:
+      label: 개인정보를 지운 오류 정보
+      description: reason 값이나 설치 로그의 오류 부분만 적어 주세요. 개인 경로와 계정 정보를 지워 주세요.
