@@ -1,6 +1,7 @@
 """Read Claude's weekly quota. Credentials stay in Claude's own credential store."""
 import ctypes,json,math,os,pathlib,subprocess,sys,time,urllib.request,urllib.error
 from metadata import write_metadata
+from display_state import prepare
 ROOT=pathlib.Path(__file__).resolve().parent
 INTERVAL=120
 ENDPOINT='https://api.anthropic.com/api/oauth/usage'
@@ -50,14 +51,12 @@ def account_id():
     except (OSError,ValueError,subprocess.TimeoutExpired):return None
 
 def write_state(state):
-    now=int(time.time()); state.update(checkedAt=now,refreshSeconds=INTERVAL)
-    write_metadata('claude',state)
     previous={}
     try:previous=json.loads((ROOT/'claude-quota.json').read_text())
     except (OSError,ValueError):pass
-    if previous.get('status')=='ok':state['previousSuccessfulCheckAt']=previous.get('checkedAt')
+    state,display=prepare(state,previous,refresh_seconds=INTERVAL)
+    write_metadata('claude',state)
     tmp=ROOT/'claude-quota.json.tmp';tmp.write_text(json.dumps(state),encoding='utf-8');os.replace(tmp,ROOT/'claude-quota.json')
-    display=str(math.floor(state['remainingPercent']))+'%' if state.get('status')=='ok' else '--%'
     tmp=ROOT/'claude-display.txt.tmp';tmp.write_text(display,encoding='ascii');os.replace(tmp,ROOT/'claude-display.txt')
 
 if __name__=='__main__':
@@ -66,9 +65,10 @@ if __name__=='__main__':
     if ctypes.windll.kernel32.GetLastError()==183:sys.exit(0)
     while True:
         start=time.monotonic()
+        identity=None
         try:
             identity=account_id();state=read_usage();state.update(status='ok',accountId=identity);write_state(state)
         except Exception as e:
-            write_state({'status':'unavailable','reason':str(e) if isinstance(e,(ValueError,Unavailable)) else type(e).__name__})
+            write_state({'status':'unavailable','reason':str(e) if isinstance(e,(ValueError,Unavailable)) else type(e).__name__,'accountId':identity})
         if '--once' in sys.argv:print((ROOT/'claude-quota.json').read_text());break
         time.sleep(max(1,INTERVAL-(time.monotonic()-start)))

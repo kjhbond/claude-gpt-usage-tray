@@ -211,6 +211,9 @@ void OpenDisplaySettings() {
  auto path=WidgetPath(L"QuotaSettings.exe");
  ShellExecuteW(nullptr,L"open",path.c_str(),nullptr,nullptr,SW_SHOWNORMAL);
 }
+void OpenAccountHelp() {
+ ShellExecuteW(nullptr,L"open",L"https://github.com/kjhbond/claude-gpt-usage-tray/blob/main/docs/ACCOUNT.md",nullptr,nullptr,SW_SHOWNORMAL);
+}
 std::wstring AccountInfo(bool claude, const wchar_t* key) {
  wchar_t value[512];
  GetPrivateProfileStringW(L"Account",key,L"확인 불가",value,ARRAYSIZE(value),
@@ -218,7 +221,10 @@ std::wstring AccountInfo(bool claude, const wchar_t* key) {
  return value;
 }
 std::wstring ResetToolTip(bool claude) {
- return std::wstring(claude?L"Claude":L"ChatGPT")+L" · 주간 리셋: "+AccountInfo(claude,L"ResetLocal");
+ auto tip=std::wstring(claude?L"Claude":L"ChatGPT")+L" · 주간 리셋: "+AccountInfo(claude,L"ResetLocal");
+ auto status=AccountInfo(claude,L"StatusDisplay");
+ if(status!=L"정상")tip+=L" · "+status;
+ return tip;
 }
 Controls::Button MakeChatButton(Controls::StackPanel content, bool claude) {
  Controls::Button button;
@@ -245,11 +251,15 @@ Controls::Button MakeChatButton(Controls::StackPanel content, bool claude) {
    label(L"계정 ID: "+AccountInfo(claude,L"AccountId"));
    label(L"리셋 일시: "+AccountInfo(claude,L"ResetLocal"));
    label(L"조회 시각: "+AccountInfo(claude,L"CheckedLocal"));
+   label(L"상태: "+AccountInfo(claude,L"StatusDisplay"));
+   if(AccountInfo(claude,L"Status")==L"stale")label(L"마지막 정상 조회: "+AccountInfo(claude,L"LastSuccessLocal"));
    menu.Items().Append(Controls::MenuFlyoutSeparator());
    Controls::MenuFlyoutItem open;open.Text(claude?L"Claude 웹 채팅 열기":L"ChatGPT 웹 채팅 열기");
    open.Click([claude](auto const&,auto const&){OpenWebChat(claude);});menu.Items().Append(open);
    Controls::MenuFlyoutItem settings;settings.Text(L"표시 설정...");
    settings.Click([](auto const&,auto const&){OpenDisplaySettings();});menu.Items().Append(settings);
+   Controls::MenuFlyoutItem help;help.Text(L"계정 연동 안내");
+   help.Click([](auto const&,auto const&){OpenAccountHelp();});menu.Items().Append(help);
    menu.ShowAt(owner,args.GetPosition(owner));
   }catch(...){Wh_Log(L"Account menu unavailable");}
  });
@@ -353,7 +363,7 @@ void CALLBACK Tick(HWND,UINT,UINT_PTR,DWORD) {
    }
    std::string value="--%";
    if(fresh){std::ifstream f{std::filesystem::path(path)};std::getline(f,value);}
-   if(value.empty()||value.size()>5||value.find_first_not_of("0123456789%.-")!=std::string::npos)value="--%";
+   if(value.empty()||value.size()>5||value.find_first_not_of("0123456789%.-~")!=std::string::npos)value="--%";
    return value;
   };
   auto value=readDisplay(WidgetPath(L"display.txt"));

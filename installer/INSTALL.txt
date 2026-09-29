@@ -12,10 +12,15 @@ Requirements
   taskbar symbol lookup.
 
 The widget shows --% for a provider until its CLI login and quota read work.
+After a temporary request limit, ~83% means a previous successful reading
+from the same account in the last 30 minutes. Right-click to see the status
+and last successful check. --% can still mean no login or no successful read.
 To display only one provider, right-click an icon, open "표시 설정...",
 and uncheck the provider you do not use. The hidden provider is not polled.
 Open settings again from the remaining icon to restore both providers.
 The selected providers remain selected after an installer update.
+The widget uses the existing Codex CLI and Claude Code logins for this Windows
+user. It does not ask for a separate login. See docs/ACCOUNT.md in the repo.
 No login tokens, account labels, or prior quota results are included in the
 installer. The widget reads existing login state on the installed computer.
 

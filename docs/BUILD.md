@@ -5,7 +5,7 @@
 Windows x64에서 저장소 루트로 이동한 뒤:
 
 ```powershell
-python -m unittest test_metadata.py test_quota.py test_claude_quota.py
+python -m unittest test_metadata.py test_quota.py test_claude_quota.py test_display_state.py
 & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /out:CodexQuotaWidget.exe Launcher.cs
 & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /out:QuotaSettings.exe /r:System.Windows.Forms.dll /r:System.Drawing.dll Settings.cs
 python build.py codex-weekly-quota-portable.dll
@@ -14,4 +14,4 @@ python installer\build-installer.py
 
 결과는 `release/CodexClaudeQuotaTray-Setup.exe`입니다. 설치 파일은 지정된 실행·소스 파일과 Windhawk portable 구성만 묶습니다. 실제 배포 전에는 설치 파일 안에 자격 증명, 계정 정보, 개인 경로, 기존 조회 결과가 없는지 확인해야 합니다. Windows 작업 표시줄의 실제 동작은 단위 테스트와 별도로 설치 후 확인해야 합니다.
 
-한도 처리: `quota.py`, `claude_quota.py` · 한국시간 처리: `metadata.py` · 작업 표시줄: `codex-weekly-quota.wh.cpp` · 표시 설정: `Settings.cs` · 설치: `installer/Setup.cs`
+한도 처리: `quota.py`, `claude_quota.py` · 정상값/이전값 처리: `display_state.py` · 한국시간 처리: `metadata.py` · 작업 표시줄: `codex-weekly-quota.wh.cpp` · 표시 설정: `Settings.cs`, `sync-pollers.ps1` · 설치: `installer/Setup.cs`

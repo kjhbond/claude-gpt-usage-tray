@@ -1,6 +1,7 @@
 """Read-only Codex app-server quota poller. Never reads or exports auth tokens."""
 import json, os, pathlib, queue, subprocess, sys, threading, time, math, ctypes
 from metadata import write_metadata
+from display_state import prepare
 ROOT=pathlib.Path(__file__).resolve().parent
 INTERVAL=120
 
@@ -56,12 +57,14 @@ class Server:
             except subprocess.TimeoutExpired:self.p.kill();self.p.wait()
 
 def write_state(state):
-    state['checkedAt']=int(time.time());state['refreshSeconds']=INTERVAL
+    previous={}
+    try:previous=json.loads((ROOT/'quota.json').read_text(encoding='utf-8'))
+    except (OSError,ValueError):pass
+    state,display=prepare(state,previous,refresh_seconds=INTERVAL)
     write_metadata('codex',state)
     tmp=ROOT/'quota.json.tmp';tmp.write_text(json.dumps(state),encoding='utf-8');os.replace(tmp,ROOT/'quota.json')
     # Plain display file consumed by the in-process taskbar mod.
-    text=(str(math.floor(state['remainingPercent']))+'%') if state.get('status')=='ok' else '--%'
-    tmp=ROOT/'display.txt.tmp';tmp.write_text(text,encoding='ascii');os.replace(tmp,ROOT/'display.txt')
+    tmp=ROOT/'display.txt.tmp';tmp.write_text(display,encoding='ascii');os.replace(tmp,ROOT/'display.txt')
 
 if __name__=='__main__':
     ctypes.windll.kernel32.CreateMutexW.restype=ctypes.c_void_p
@@ -71,14 +74,16 @@ if __name__=='__main__':
     try:
         while True:
             started=time.monotonic()
+            account_id=None
             try:
                 if server is None:server=Server()
                 account=server.request('account/read',{'refreshToken':False}).get('account') or {}
+                account_id=account.get('email')
                 state=weekly(server.request('account/rateLimits/read'))
-                state['accountId']=account.get('email')
+                state['accountId']=account_id
                 state['status']='ok';write_state(state)
             except Exception as e:
-                write_state({'status':'unavailable','reason':str(e) if isinstance(e,ValueError) else type(e).__name__})
+                write_state({'status':'unavailable','reason':str(e) if isinstance(e,ValueError) else type(e).__name__,'accountId':account_id})
                 if server:server.close();server=None
             if '--once' in sys.argv:
                 print((ROOT/'quota.json').read_text());break

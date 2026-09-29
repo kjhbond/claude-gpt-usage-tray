@@ -97,7 +97,7 @@ internal static class Settings {
             !WritePrivateProfileString("Layout", "ShowClaude", claude ? "1" : "0", Layout))
             throw new IOException("layout.ini could not be updated.");
 
-        string script = Path.Combine(Root, "restart-pollers.ps1");
+        string script = Path.Combine(Root, "sync-pollers.ps1");
         if (!File.Exists(script)) throw new FileNotFoundException("Restart script is missing.", script);
         var start = new ProcessStartInfo(
             "powershell.exe",
@@ -108,7 +108,7 @@ internal static class Settings {
                 process.Kill();
                 throw new TimeoutException("Restart timed out.");
             }
-            if (process.ExitCode != 0) throw new IOException("The quota pollers could not restart.");
+            if (process.ExitCode != 0) throw new IOException("The quota pollers could not update.");
         }
     }
 }

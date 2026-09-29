@@ -25,6 +25,7 @@ internal static class Setup {
             string stage = Path.Combine(Path.GetTempPath(), "CodexClaudeQuotaTray-" + Guid.NewGuid().ToString("N"));
             try {
                 Extract(stage);
+                CloseInstalledSettings(target);
                 string oldUninstall = Path.Combine(target, "uninstall.ps1");
                 if (File.Exists(oldUninstall)) RunPowerShell(oldUninstall, "", 60000);
                 CopyTree(stage, target);
@@ -80,6 +81,21 @@ internal static class Setup {
             File.Copy(file, output, true);
         }
         foreach (string directory in Directory.GetDirectories(source)) CopyTree(directory, Path.Combine(destination, Path.GetFileName(directory)));
+    }
+
+    static void CloseInstalledSettings(string target) {
+        string expected = Path.Combine(target, "QuotaSettings.exe");
+        foreach (var process in Process.GetProcessesByName("QuotaSettings")) {
+            try {
+                if (!String.Equals(process.MainModule.FileName, expected, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!process.HasExited && process.CloseMainWindow()) process.WaitForExit(3000);
+                if (!process.HasExited) { process.Kill(); process.WaitForExit(5000); }
+            } catch (InvalidOperationException) {
+                // The settings window exited while the installer was checking it.
+            } finally {
+                process.Dispose();
+            }
+        }
     }
 
     static bool FilesEqual(string first, string second) {
