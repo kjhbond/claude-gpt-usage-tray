@@ -30,7 +30,7 @@ internal static class Setup {
                 CopyTree(stage, target);
                 RunPowerShell(Path.Combine(target, "install-startup.ps1"), "-PythonPath \"" + python + "\"", 60000);
                 File.AppendAllText(LogPath, DateTime.Now.ToString("O") + " Installed to " + target + Environment.NewLine);
-                if (!quiet) MessageBox.Show("설치가 완료되었습니다. ChatGPT·Claude 주간 한도가 트레이에 표시됩니다.\n\n각 CLI 로그인 상태에 따라 첫 조회까지 잠시 걸릴 수 있습니다.", "Codex + Claude Quota Tray");
+                if (!quiet) MessageBox.Show("설치가 완료되었습니다.\n\n아이콘을 오른쪽 클릭하고 '표시 설정...'에서 사용할 서비스를 선택하세요. 선택하지 않은 서비스는 조회하지 않습니다.", "Codex + Claude Quota Tray");
                 return 0;
             } finally {
                 if (Directory.Exists(stage)) Directory.Delete(stage, true);
@@ -73,6 +73,8 @@ internal static class Setup {
         Directory.CreateDirectory(destination);
         foreach (string file in Directory.GetFiles(source)) {
             string output = Path.Combine(destination, Path.GetFileName(file));
+            if (String.Equals(Path.GetFileName(output), "layout.ini", StringComparison.OrdinalIgnoreCase)
+                && File.Exists(output)) continue;
             if (File.Exists(output) && FilesEqual(file, output)) continue;
             if (File.Exists(output)) File.SetAttributes(output, FileAttributes.Normal);
             File.Copy(file, output, true);

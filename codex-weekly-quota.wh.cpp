@@ -2,7 +2,7 @@
 // @id codex-weekly-quota
 // @name Codex and Claude weekly quota
 // @description Native XAML weekly quota beside the input indicator
-// @version 1.0.0
+// @version 1.1.0
 // @author Local
 // @include explorer.exe
 // @architecture x86-64
@@ -207,6 +207,10 @@ Controls::MenuFlyout g_codexMenu{nullptr},g_claudeMenu{nullptr};
 void OpenWebChat(bool claude) {
  ShellExecuteW(nullptr,L"open",claude?L"https://claude.ai/new":L"https://chatgpt.com/",nullptr,nullptr,SW_SHOWNORMAL);
 }
+void OpenDisplaySettings() {
+ auto path=WidgetPath(L"QuotaSettings.exe");
+ ShellExecuteW(nullptr,L"open",path.c_str(),nullptr,nullptr,SW_SHOWNORMAL);
+}
 std::wstring AccountInfo(bool claude, const wchar_t* key) {
  wchar_t value[512];
  GetPrivateProfileStringW(L"Account",key,L"확인 불가",value,ARRAYSIZE(value),
@@ -244,6 +248,8 @@ Controls::Button MakeChatButton(Controls::StackPanel content, bool claude) {
    menu.Items().Append(Controls::MenuFlyoutSeparator());
    Controls::MenuFlyoutItem open;open.Text(claude?L"Claude 웹 채팅 열기":L"ChatGPT 웹 채팅 열기");
    open.Click([claude](auto const&,auto const&){OpenWebChat(claude);});menu.Items().Append(open);
+   Controls::MenuFlyoutItem settings;settings.Text(L"표시 설정...");
+   settings.Click([](auto const&,auto const&){OpenDisplaySettings();});menu.Items().Append(settings);
    menu.ShowAt(owner,args.GetPosition(owner));
   }catch(...){Wh_Log(L"Account menu unavailable");}
  });
@@ -353,13 +359,25 @@ void CALLBACK Tick(HWND,UINT,UINT_PTR,DWORD) {
   auto value=readDisplay(WidgetPath(L"display.txt"));
   auto claude=readDisplay(WidgetPath(L"claude-display.txt"));
   g_text.Text(winrt::to_hstring(value));g_claudeText.Text(winrt::to_hstring(claude));
+  auto layout=WidgetPath(L"layout.ini");
+  bool showCodex=GetPrivateProfileIntW(L"Layout",L"ShowCodex",1,layout.c_str())!=0;
+  bool showClaude=GetPrivateProfileIntW(L"Layout",L"ShowClaude",1,layout.c_str())!=0;
+  if(!showCodex&&!showClaude)showCodex=true;
+  auto codexVisibility=showCodex?Visibility::Visible:Visibility::Collapsed;
+  auto claudeVisibility=showClaude?Visibility::Visible:Visibility::Collapsed;
+  if(g_codexButton.Visibility()!=codexVisibility)g_codexButton.Visibility(codexVisibility);
+  if(g_claudeButton.Visibility()!=claudeVisibility)g_claudeButton.Visibility(claudeVisibility);
+  float claudeLeft=showCodex?14.0f:0.0f;
+  if(g_claudeButton.Margin().Left!=claudeLeft)g_claudeButton.Margin({claudeLeft,0,0,0});
   auto codexTip=ResetToolTip(false),claudeTip=ResetToolTip(true);
   if(codexTip!=g_codexTip){Controls::ToolTipService::SetToolTip(g_codexButton,winrt::box_value(codexTip));g_codexTip=codexTip;}
   if(claudeTip!=g_claudeTip){Controls::ToolTipService::SetToolTip(g_claudeButton,winrt::box_value(claudeTip));g_claudeTip=claudeTip;}
-  Automation::AutomationProperties::SetName(g_widget,winrt::to_hstring("Weekly quota remaining: Codex "+value+", Claude "+claude));
+  std::string summary="Weekly quota remaining:";
+  if(showCodex)summary+=" Codex "+value;
+  if(showClaude){if(showCodex)summary+=",";summary+=" Claude "+claude;}
+  Automation::AutomationProperties::SetName(g_widget,winrt::to_hstring(summary));
   double scale=root.RasterizationScale();
   // Physical glyph target is calibrated from an actual screenshot, independently of DPI.
-  auto layout=WidgetPath(L"layout.ini");
   g_text.FontSize(GetPrivateProfileIntW(L"Layout",L"FontSizeHundredths",1700,layout.c_str())/100.0/scale);g_logo.Width(16.0/scale);g_logo.Height(16.0/scale);
   g_text.Margin({0,(int)GetPrivateProfileIntW(L"Layout",L"TopMarginHundredths",-200,layout.c_str())/100.0/scale,0,0});
   g_claudeText.FontSize(g_text.FontSize());g_claudeText.Margin(g_text.Margin());

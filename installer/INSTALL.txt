@@ -6,12 +6,16 @@ to start when that account signs in. It can be run again to update the widget.
 
 Requirements
 - Python 3 with pythonw.exe available from the python or py command.
-- Codex CLI installed via npm and signed in to the desired ChatGPT account.
-- Claude Code installed via npm and signed in to the desired Claude account.
+- For Codex display: Codex CLI installed via npm and signed in.
+- For Claude display: Claude Code installed via npm and signed in.
 - Internet access for the quota checks and, on a new Windows build, Windhawk's
   taskbar symbol lookup.
 
 The widget shows --% for a provider until its CLI login and quota read work.
+To display only one provider, right-click an icon, open "표시 설정...",
+and uncheck the provider you do not use. The hidden provider is not polled.
+Open settings again from the remaining icon to restore both providers.
+The selected providers remain selected after an installer update.
 No login tokens, account labels, or prior quota results are included in the
 installer. The widget reads existing login state on the installed computer.
 

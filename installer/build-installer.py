@@ -11,7 +11,9 @@ SETUP = OUT / 'CodexClaudeQuotaTray-Setup.exe'
 
 files = {
     'CodexQuotaWidget.exe': ROOT / 'CodexQuotaWidget.exe',
+    'QuotaSettings.exe': ROOT / 'QuotaSettings.exe',
     'Launcher.cs': ROOT / 'Launcher.cs',
+    'Settings.cs': ROOT / 'Settings.cs',
     'quota.py': ROOT / 'quota.py',
     'claude_quota.py': ROOT / 'claude_quota.py',
     'metadata.py': ROOT / 'metadata.py',
@@ -19,9 +21,10 @@ files = {
     'chatgpt.png': ROOT / 'chatgpt.png',
     'claude.png': ROOT / 'claude.png',
     'install-startup.ps1': ROOT / 'install-startup.ps1',
+    'restart-pollers.ps1': ROOT / 'restart-pollers.ps1',
     'uninstall.ps1': ROOT / 'uninstall.ps1',
     'INSTALL.txt': ROOT / 'installer/INSTALL.txt',
-    'reference/COPYING': ROOT / 'reference/COPYING',
+    'reference/COPYING': ROOT / 'LICENSE',
     'Windhawk/windhawk.exe': ROOT / 'Windhawk/windhawk.exe',
     'Windhawk/windhawk-x64-helper.exe': ROOT / 'Windhawk/windhawk-x64-helper.exe',
     'Windhawk/windhawk.ini': ROOT / 'Windhawk/windhawk.ini',

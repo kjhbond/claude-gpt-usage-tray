@@ -1,3 +1,23 @@
+# v1.1.0 · 사용하는 서비스만 표시
+
+Codex와 Claude Code 중 **구독해서 사용하는 서비스만 작업 표시줄에 표시**할 수 있습니다. 남길 아이콘을 오른쪽 클릭 → **표시 설정...** → 원하는 서비스만 선택 → **저장**하세요. 숨긴 서비스의 조회기도 중지합니다. 남은 아이콘에서 다시 설정을 열어 둘 다 표시할 수 있으며, 설치 파일을 다시 실행해도 선택이 유지됩니다.
+
+![Codex와 Claude Code 표시 설정 창](docs/settings-preview.png)
+
+## 다운로드
+
+**[CodexClaudeQuotaTray-Setup.exe](https://github.com/kjhbond/claude-gpt-usage-tray/releases/download/v1.1.0/CodexClaudeQuotaTray-Setup.exe)** · Windows 11 x64
+
+SHA-256: `089EC2C343C8E2E3AA53F65D9F375F6C4E5DA1900B61019D0851122E27DD5A24`
+
+Python 3과 `pythonw.exe`가 필요합니다. **표시할 서비스의** CLI만 npm으로 설치하고 로그인하면 됩니다. 처음에는 두 아이콘이 보이므로, 하나만 사용한다면 설치 후 표시 설정에서 다른 아이콘을 숨기세요. 코드 서명되지 않은 개인 빌드입니다.
+
+[설치·사용 안내](docs/START_HERE.md) · [문제 해결](docs/TROUBLESHOOTING.md) · [개인정보와 데이터 흐름](docs/PRIVACY.md)
+
+설치된 Windows 11 x64 작업 표시줄에서 Codex만·Claude만·둘 다 표시, 숨긴 조회기 중지, 설정 유지와 복원을 확인했습니다. 다른 Windows 빌드의 작업 표시줄은 추가 검증이 필요합니다.
+
+---
+
 # v1.0.0 · Windows 11 x64 첫 공개 배포
 
 Codex와 Claude Code의 **주간 잔여 한도**를 Windows 11 작업 표시줄 알림 영역 옆에 표시합니다. 마우스를 올리면 리셋 시각을 `월-일(요일) 시:분 한국시간` 형식으로 볼 수 있습니다. 왼쪽 클릭은 웹 채팅을 열고, 오른쪽 클릭은 계정·리셋·최근 조회 시각을 보여줍니다.
