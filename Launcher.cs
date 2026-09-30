@@ -9,6 +9,7 @@ class Launcher {
   string root=AppDomain.CurrentDomain.BaseDirectory;
   try {
    Start(Path.Combine(root,"Windhawk","windhawk.exe"),"-tray-only",root);
+   Start(Path.Combine(root,"FallbackTray.exe"),"",root);
    string python=File.ReadAllText(Path.Combine(root,"pythonw-path.txt")).Trim();
    string layout=Path.Combine(root,"layout.ini");
    bool codex=GetPrivateProfileInt("Layout","ShowCodex",1,layout)!=0;

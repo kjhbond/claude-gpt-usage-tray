@@ -18,6 +18,8 @@ flowchart LR
     AP --> STATE
     STATE --> MOD[Windhawk 작업 표시줄 모드]
     MOD --> BAR[아이콘 · 잔여율 · 한국시간 툴팁]
+    STATE --> FALLBACK[FallbackTray.cs]
+    FALLBACK --> TRAY[작업 표시줄 모드 실패 시 알림 영역 숫자 아이콘]
 ```
 
 ## 주요 파일
@@ -26,7 +28,8 @@ flowchart LR
 | --- | --- |
 | `codex-weekly-quota.wh.cpp` | Windows 11 작업 표시줄 XAML에 두 버튼을 만들고 `layout.ini` 표시 옵션, 조회 결과, 툴팁과 오른쪽 클릭 메뉴를 반영합니다. |
 | `Settings.cs` | 사용자가 Codex·Claude Code 표시 여부를 고릅니다. 최소 하나를 선택하게 하고 `sync-pollers.ps1`을 호출합니다. |
-| `Launcher.cs` | Windows 로그인 시 Windhawk와 선택된 서비스의 Python 조회기만 시작합니다. |
+| `Launcher.cs` | Windows 로그인 시 Windhawk, 예비 숫자 아이콘, 선택된 서비스의 Python 조회기를 시작합니다. |
+| `FallbackTray.cs` | 기본 작업 표시줄 버튼을 감지하고, 버튼이 없으면 알림 영역에 잔여율 숫자 아이콘을 표시합니다. 버튼이 돌아오면 예비 아이콘을 숨깁니다. |
 | `sync-pollers.ps1` | 설정 변경 시 숨긴 조회기만 중지하고 새로 켠 조회기만 시작합니다. 이미 실행 중인 조회기는 그대로 둡니다. |
 | `quota.py` | 로컬 Codex app-server에 계정·주간 한도를 읽기 전용으로 요청합니다. |
 | `claude_quota.py` | Claude Code OAuth 로그인 정보를 이용해 `seven_day` 사용량을 조회합니다. |

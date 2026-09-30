@@ -1,9 +1,15 @@
 # 문제 해결
 
+## 독수리 모양 아이콘만 보이고 한도 숫자는 없어요
+
+독수리 모양은 포함된 Windhawk의 실행 아이콘입니다. 사용량 아이콘이 아닙니다. v1.1.1부터 Windhawk 아이콘은 숨기고, 작업 표시줄 모드가 붙지 못한 PC에는 알림 영역에 숫자 아이콘을 자동으로 표시합니다. [최신 설치 파일](https://github.com/kjhbond/claude-gpt-usage-tray/releases/latest/download/CodexClaudeQuotaTray-Setup.exe)을 현재 Windows 사용자로 다시 실행하세요. 기존 표시 설정은 유지됩니다.
+
+숫자 아이콘도 `--%`이면 작업 표시줄 모드와 별도로 CLI 로그인·조회 상태를 확인하세요. 숫자 아이콘 자체가 안 보이면 작업 표시줄의 숨겨진 아이콘 메뉴(`^`)도 확인하고, 아래 절차를 따르세요. Windows 업데이트로 `taskbar.dll` 기호를 받을 수 없으면 Windhawk 모드가 붙지 않을 수 있습니다. [Windhawk 개발자의 설명](https://github.com/ramensoftware/windhawk-mods/discussions/4543)에 따르면 일부 Windows 빌드는 Microsoft 디버그 기호 미공개 또는 연결 차단 때문에 작업 표시줄 모드가 동작하지 않습니다. 이 경우 예비 숫자 아이콘은 계속 사용할 수 있습니다.
+
 ## 두 아이콘이 모두 안 보여요
 
 1. Windows 11 x64에서 설치했는지 확인합니다.
-2. 작업 관리자에서 `windhawk.exe`, `pythonw.exe`가 실행 중인지 확인합니다.
+2. 작업 관리자에서 `windhawk.exe`, `FallbackTray.exe`, `pythonw.exe`가 실행 중인지 확인합니다.
 3. `%TEMP%\CodexClaudeQuotaTray-Setup.log`와 `%USERPROFILE%\CodexQuotaWidget\startup-error.txt`가 있으면 내용을 확인합니다.
 4. Windows에서 로그아웃한 뒤 다시 로그인합니다. Windows 업데이트 직후에는 Windhawk가 작업 표시줄 기호를 새로 찾는 데 인터넷 연결이 필요할 수 있습니다.
 

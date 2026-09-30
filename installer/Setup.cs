@@ -31,7 +31,7 @@ internal static class Setup {
                 CopyTree(stage, target);
                 RunPowerShell(Path.Combine(target, "install-startup.ps1"), "-PythonPath \"" + python + "\"", 60000);
                 File.AppendAllText(LogPath, DateTime.Now.ToString("O") + " Installed to " + target + Environment.NewLine);
-                if (!quiet) MessageBox.Show("설치가 완료되었습니다.\n\n아이콘을 오른쪽 클릭하고 '표시 설정...'에서 사용할 서비스를 선택하세요. 선택하지 않은 서비스는 조회하지 않습니다.", "Codex + Claude Quota Tray");
+                if (!quiet) MessageBox.Show("설치가 완료되었습니다.\n\n숫자 위젯이 작업 표시줄에 표시됩니다. Windows 작업 표시줄 모드가 동작하지 않으면 알림 영역의 숫자 아이콘으로 표시됩니다. '표시 설정...'에서 사용할 서비스를 선택하세요.", "Codex + Claude Quota Tray");
                 return 0;
             } finally {
                 if (Directory.Exists(stage)) Directory.Delete(stage, true);

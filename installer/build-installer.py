@@ -12,8 +12,10 @@ SETUP = OUT / 'CodexClaudeQuotaTray-Setup.exe'
 files = {
     'CodexQuotaWidget.exe': ROOT / 'CodexQuotaWidget.exe',
     'QuotaSettings.exe': ROOT / 'QuotaSettings.exe',
+    'FallbackTray.exe': ROOT / 'FallbackTray.exe',
     'Launcher.cs': ROOT / 'Launcher.cs',
     'Settings.cs': ROOT / 'Settings.cs',
+    'FallbackTray.cs': ROOT / 'FallbackTray.cs',
     'quota.py': ROOT / 'quota.py',
     'claude_quota.py': ROOT / 'claude_quota.py',
     'display_state.py': ROOT / 'display_state.py',
@@ -46,7 +48,7 @@ for name, path in files.items():
 
 with ZipFile(PAYLOAD, 'w', ZIP_DEFLATED, compresslevel=6) as zip_file:
     for name, path in sorted(files.items()): zip_file.write(path, name)
-    zip_file.writestr('Windhawk/AppData/settings.ini', '[Settings]\nLanguage=ko\nLoggingVerbosity=0\nHideTrayIcon=0\nAlwaysCompileModsLocally=0\n')
+    zip_file.writestr('Windhawk/AppData/settings.ini', '[Settings]\nLanguage=ko\nLoggingVerbosity=0\nHideTrayIcon=1\nAlwaysCompileModsLocally=0\n')
     zip_file.writestr('Windhawk/AppData/Engine/settings.ini', '[Settings]\nLoggingVerbosity=0\n')
 
 compiler = Path('C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe')

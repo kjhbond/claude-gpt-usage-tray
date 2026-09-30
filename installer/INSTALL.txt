@@ -12,6 +12,10 @@ Requirements
   taskbar symbol lookup.
 
 The widget shows --% for a provider until its CLI login and quota read work.
+The eagle icon belongs to Windhawk, not to the quota widget. It is hidden in
+this release. If the taskbar mod cannot attach, two ordinary notification-area
+icons show the quota values instead; hover them for the provider and number.
+The fallback icons disappear automatically once the native widget works.
 After a temporary request limit, ~83% means a previous successful reading
 from the same account in the last 30 minutes. Right-click to see the status
 and last successful check. --% can still mean no login or no successful read.

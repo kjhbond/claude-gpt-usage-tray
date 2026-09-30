@@ -2,7 +2,7 @@
 // @id codex-weekly-quota
 // @name Codex and Claude weekly quota
 // @description Native XAML weekly quota beside the input indicator
-// @version 1.1.0
+// @version 1.1.1
 // @author Local
 // @include explorer.exe
 // @architecture x86-64
