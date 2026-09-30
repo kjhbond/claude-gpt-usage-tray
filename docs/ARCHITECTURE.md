@@ -24,9 +24,11 @@ flowchart LR
 
 | 파일 | 역할 |
 | --- | --- |
-| `codex-weekly-quota.wh.cpp` | Windows 11 작업 표시줄의 `Grid`·`StackPanel` 구조에 두 버튼을 만들고, Explorer 시작 시 작업 표시줄 창이 늦게 생기면 재시도합니다. `layout.ini` 표시 옵션, 조회 결과, 툴팁과 오른쪽 클릭 메뉴를 반영합니다. |
+| `codex-weekly-quota.wh.cpp` | Windows 11 작업 표시줄의 `Grid`·`StackPanel` 구조에 두 버튼을 만들고, Explorer 시작 시 작업 표시줄 창이 늦게 생기면 최대 60초 재시도합니다. `layout.ini` 표시 옵션, 조회 결과, 툴팁과 오른쪽 클릭 메뉴를 반영합니다. |
 | `Settings.cs` | 사용자가 Codex·Claude Code 표시 여부를 고릅니다. 최소 하나를 선택하게 하고 `sync-pollers.ps1`을 호출합니다. |
-| `Launcher.cs` | Windows 로그인 시 Windhawk와 선택된 서비스의 Python 조회기만 시작합니다. |
+| `Launcher.cs` | Windows 로그인 시 Windhawk와 선택된 서비스의 Python 조회기만 시작합니다. WMI로 프로세스를 분리해 실행기를 직접 호출한 프로그램이 끝나도 조회기가 유지됩니다. |
+| `windhawk_imports.py` | 모드 DLL의 PE 가져오기 목록을 읽어 Windhawk portable의 `.whl` 런타임 이름을 검증하고 필요하면 같은 길이로 수정합니다. |
+| `install-startup.ps1`, `restart-pollers.ps1` | 현재 사용자의 대화형 세션에서 Windows WMI로 실행기를 시작해 호출 셸의 종료와 실행기 수명을 분리합니다. |
 | `sync-pollers.ps1` | 설정 변경 시 숨긴 조회기만 중지하고 새로 켠 조회기만 시작합니다. 이미 실행 중인 조회기는 그대로 둡니다. |
 | `quota.py` | 로컬 Codex app-server에 계정·주간 한도를 읽기 전용으로 요청합니다. |
 | `claude_quota.py` | Claude Code OAuth 로그인 정보를 이용해 `seven_day` 사용량을 조회합니다. |

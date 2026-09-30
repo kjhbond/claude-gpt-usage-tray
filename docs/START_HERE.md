@@ -65,6 +65,12 @@ Get-FileHash "$env:USERPROFILE\Downloads\CodexClaudeQuotaTray-Setup.exe" -Algori
 
 업데이트는 새 릴리스의 설치 파일을 **같은 Windows 계정에서 다시 실행**합니다. 기존 자동 실행과 위젯 파일을 갱신하고, 선택한 서비스 표시 설정은 유지합니다.
 
+조회기를 다시 시작하려면 현재 사용자 PowerShell에서 아래 명령을 실행하세요. 이 스크립트는 실행기를 Windows의 별도 프로세스로 시작하므로 호출한 터미널을 닫아도 위젯이 유지됩니다.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\CodexQuotaWidget\restart-pollers.ps1"
+```
+
 위젯을 중지하고 로그인 자동 실행을 해제하려면:
 
 ```powershell

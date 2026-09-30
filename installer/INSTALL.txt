@@ -33,4 +33,8 @@ To stop it and remove login startup, run:
   powershell -NoProfile -ExecutionPolicy Bypass -File "%USERPROFILE%\CodexQuotaWidget\uninstall.ps1"
 
 Installer log: %TEMP%\CodexClaudeQuotaTray-Setup.log
+The build verifies that the native mod imports libc++.whl and libunwind.whl.
+The installer, restart script, and launcher use local Windows WMI to start
+the widget and its pollers outside the calling process's job, so they survive
+the shell or installer process exiting.
 Windhawk and taskbar mod source notices: %USERPROFILE%\CodexQuotaWidget\reference\COPYING

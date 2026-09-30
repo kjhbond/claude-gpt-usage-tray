@@ -1,3 +1,17 @@
+# v1.1.3 · Windhawk 모드 재빌드와 독립 실행 수정
+
+Windows 11 25H2에서 한도 조회는 정상인데 작업 표시줄 위젯이 나오지 않는 사례를 반영했습니다. `SystemTrayFrameGrid`가 `StackPanel`인 작업 표시줄 지원은 v1.1.2에 포함돼 있습니다. 이번 버전에서는 작업 표시줄 창이 늦게 만들어질 때 **최대 60초 재시도**하고, 모드가 해제될 때 재시도 스레드를 정리합니다.
+
+`build.py`가 빌드된 DLL의 PE 가져오기 목록에서 `libc++.dll`·`libunwind.dll`을 Windhawk portable의 `.whl` 이름으로 맞추고 검증합니다. 설치 파일을 만드는 단계에서도 DLL 가져오기를 다시 검사해, 누락된 런타임 때문에 모드가 로드되지 않는 배포 파일을 만들지 않도록 했습니다. 설치·조회기 재시작 스크립트와 실행기 자체가 Windows WMI로 프로세스를 분리해 시작하므로, 호출한 프로그램이나 셸이 끝나도 Windhawk와 조회기가 유지됩니다.
+
+**[CodexClaudeQuotaTray-Setup.exe](https://github.com/kjhbond/claude-gpt-usage-tray/releases/download/v1.1.3/CodexClaudeQuotaTray-Setup.exe)** · Windows 11 x64
+
+SHA-256: `D42F72CF6DB7E3CCACCFA20AE4F5F83DD35290845D49C1C6117189F49259EB98`
+
+유지 관리자 PC의 Windows 11 25H2 빌드 26200에서 설치·재시작 후 원래 작업 표시줄 위젯 표시를 확인했습니다. 보고된 빌드 26200.9457의 PC에서는 아직 직접 설치 결과를 확인하지 못했습니다. 설치기가 숫자 버튼을 확인하지 못하면 성공 대신 경고와 종료 코드 `2`를 반환합니다.
+
+---
+
 # v1.1.2 · 같은 작업 표시줄 숫자 위젯 표시 확인
 
 독수리 모양은 Windhawk 실행 아이콘이지 한도 위젯이 아닙니다. **v1.1.1에서 사용한 별도 알림 영역 숫자 아이콘 방식은 제거했습니다.** 이번 버전은 기존 화면과 같은 Codex·Claude 숫자 버튼을 Windows 작업 표시줄에 직접 표시합니다.

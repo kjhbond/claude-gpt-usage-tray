@@ -2,7 +2,7 @@
 // @id codex-weekly-quota
 // @name Codex and Claude weekly quota
 // @description Native XAML weekly quota beside the input indicator
-// @version 1.1.2
+// @version 1.1.3
 // @author Local
 // @include explorer.exe
 // @architecture x86-64
@@ -436,7 +436,8 @@ void CALLBACK Tick(HWND,UINT,UINT_PTR,DWORD) {
 }
 BOOL Wh_ModInit(){return HookTaskbarDllSymbols();}
 DWORD WINAPI WaitForTaskbar(void*){
- while(WaitForSingleObject(g_stopRetry,500)==WAIT_TIMEOUT){
+ auto deadline=GetTickCount64()+60000;
+ while(GetTickCount64()<deadline && WaitForSingleObject(g_stopRetry,500)==WAIT_TIMEOUT){
   HWND taskbar=FindWindow(L"Shell_TrayWnd",nullptr);
   if(!taskbar)continue;
   DWORD pid=0;GetWindowThreadProcessId(taskbar,&pid);
@@ -448,6 +449,7 @@ DWORD WINAPI WaitForTaskbar(void*){
    g_timer=SetTimer(g_taskbar,0xC0DE120,1000,Tick);
   },nullptr))return 0;
  }
+ if(WaitForSingleObject(g_stopRetry,0)==WAIT_TIMEOUT)Wh_Log(L"Quota widget: taskbar did not appear within 60 seconds");
  return 0;
 }
 void Wh_ModAfterInit(){

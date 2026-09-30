@@ -6,4 +6,9 @@ foreach($p in $targets){
  Stop-Process -Id $p.ProcessId -ErrorAction SilentlyContinue
 }
 Start-Sleep -Milliseconds 400
-Start-Process "$PSScriptRoot\CodexQuotaWidget.exe" -WindowStyle Hidden
+$launcher=Join-Path $PSScriptRoot 'CodexQuotaWidget.exe'
+$result=Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
+ CommandLine='"'+$launcher+'"'
+ CurrentDirectory=$PSScriptRoot
+}
+if($result.ReturnValue -ne 0){throw "Detached widget launch failed: $($result.ReturnValue)"}

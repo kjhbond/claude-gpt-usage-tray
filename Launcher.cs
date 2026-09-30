@@ -1,6 +1,6 @@
 using System;
-using System.Diagnostics;
 using System.IO;
+using System.Management;
 using System.Runtime.InteropServices;
 class Launcher {
  [DllImport("kernel32.dll", CharSet=CharSet.Unicode)]
@@ -19,7 +19,15 @@ class Launcher {
   } catch(Exception ex) {File.WriteAllText(Path.Combine(root,"startup-error.txt"),DateTime.Now.ToString("O")+" "+ex.GetType().Name+": "+ex.Message);}
  }
  static void Start(string exe,string args,string dir) {
-  var p=new ProcessStartInfo(exe,args);p.WorkingDirectory=dir;p.UseShellExecute=false;p.CreateNoWindow=true;p.WindowStyle=ProcessWindowStyle.Hidden;
-  using(var process=Process.Start(p)){}
+  string command="\""+exe+"\""+(String.IsNullOrWhiteSpace(args)?"":" "+args);
+  using(var processes=new ManagementClass("Win32_Process"))
+  using(var input=processes.GetMethodParameters("Create")) {
+   input["CommandLine"]=command;
+   input["CurrentDirectory"]=dir;
+   using(var output=processes.InvokeMethod("Create",input,null)) {
+    uint code=Convert.ToUInt32(output["ReturnValue"]);
+    if(code!=0)throw new InvalidOperationException("Detached launch failed: "+code);
+   }
+  }
  }
 }

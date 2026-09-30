@@ -2,8 +2,11 @@
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from windhawk_imports import verify_windhawk_imports
 OUT = ROOT / 'release'
 OUT.mkdir(exist_ok=True)
 PAYLOAD = OUT / 'payload.zip'
@@ -14,6 +17,7 @@ files = {
     'QuotaSettings.exe': ROOT / 'QuotaSettings.exe',
     'Launcher.cs': ROOT / 'Launcher.cs',
     'Settings.cs': ROOT / 'Settings.cs',
+    'windhawk_imports.py': ROOT / 'windhawk_imports.py',
     'quota.py': ROOT / 'quota.py',
     'claude_quota.py': ROOT / 'claude_quota.py',
     'display_state.py': ROOT / 'display_state.py',
@@ -43,6 +47,7 @@ for folder in ('Engine', 'UI'):
 
 for name, path in files.items():
     if not path.is_file(): raise FileNotFoundError(name + ': ' + str(path))
+verify_windhawk_imports(files['Windhawk/AppData/Engine/Mods/64/codex-weekly-quota.dll'])
 
 with ZipFile(PAYLOAD, 'w', ZIP_DEFLATED, compresslevel=6) as zip_file:
     for name, path in sorted(files.items()): zip_file.write(path, name)
