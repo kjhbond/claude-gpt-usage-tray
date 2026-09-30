@@ -3,10 +3,15 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Windows.Automation;
 using System.Windows.Forms;
 
 internal static class Setup {
     static readonly string LogPath = Path.Combine(Path.GetTempPath(), "CodexClaudeQuotaTray-Setup.log");
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    static extern IntPtr FindWindow(string className, string title);
 
     [STAThread]
     static int Main(string[] args) {
@@ -28,10 +33,23 @@ internal static class Setup {
                 CloseInstalledSettings(target);
                 string oldUninstall = Path.Combine(target, "uninstall.ps1");
                 if (File.Exists(oldUninstall)) RunPowerShell(oldUninstall, "", 60000);
+                foreach (string obsolete in new[] { "FallbackTray.exe", "FallbackTray.cs" }) {
+                    string obsoleteFile = Path.Combine(target, obsolete);
+                    if (File.Exists(obsoleteFile)) File.Delete(obsoleteFile);
+                }
                 CopyTree(stage, target);
                 RunPowerShell(Path.Combine(target, "install-startup.ps1"), "-PythonPath \"" + python + "\"", 60000);
-                File.AppendAllText(LogPath, DateTime.Now.ToString("O") + " Installed to " + target + Environment.NewLine);
-                if (!quiet) MessageBox.Show("설치가 완료되었습니다.\n\n숫자 위젯이 작업 표시줄에 표시됩니다. Windows 작업 표시줄 모드가 동작하지 않으면 알림 영역의 숫자 아이콘으로 표시됩니다. '표시 설정...'에서 사용할 서비스를 선택하세요.", "Codex + Claude Quota Tray");
+                bool visible = WaitForWidget(45000);
+                string windowsBuild = Convert.ToString(Microsoft.Win32.Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CurrentBuildNumber", "unknown"));
+                File.AppendAllText(LogPath, DateTime.Now.ToString("O") + " Installed to " + target +
+                    "; Windows build " + windowsBuild + "; native widget visible=" + visible + Environment.NewLine);
+                if (!visible) {
+                    if (!quiet) MessageBox.Show("파일은 설치했지만 작업 표시줄 숫자 위젯을 확인하지 못했습니다.\n\nWindows 작업 표시줄과 Windhawk 모드의 호환성 또는 기호 다운로드를 확인해야 합니다. 독수리 아이콘만 보이는 경우에도 설치 성공으로 판단하지 않습니다.\n\n진단 로그: " + LogPath,
+                        "Codex + Claude Quota Tray", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return 2;
+                }
+                if (!quiet) MessageBox.Show("설치가 완료되었고 작업 표시줄 숫자 위젯을 확인했습니다.\n\n아이콘을 오른쪽 클릭하고 '표시 설정...'에서 사용할 서비스를 선택하세요.", "Codex + Claude Quota Tray");
                 return 0;
             } finally {
                 if (Directory.Exists(stage)) Directory.Delete(stage, true);
@@ -41,6 +59,29 @@ internal static class Setup {
             if (!quiet) MessageBox.Show("설치하지 못했습니다.\n" + ex.Message + "\n\n로그: " + LogPath, "Codex + Claude Quota Tray", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }
+    }
+
+    static bool WaitForWidget(int timeoutMs) {
+        var deadline = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+        var codex = new PropertyCondition(AutomationElement.AutomationIdProperty, "CodexQuotaButton");
+        var claude = new PropertyCondition(AutomationElement.AutomationIdProperty, "ClaudeQuotaButton");
+        while (DateTime.UtcNow < deadline) {
+            try {
+                IntPtr handle = FindWindow("Shell_TrayWnd", null);
+                if (handle != IntPtr.Zero) {
+                    var taskbar = AutomationElement.FromHandle(handle);
+                    foreach (var condition in new[] { codex, claude }) {
+                        var button = taskbar.FindFirst(TreeScope.Descendants, condition);
+                        if (button != null && !button.Current.IsOffscreen &&
+                            button.Current.BoundingRectangle.Width > 0) return true;
+                    }
+                }
+            } catch (Exception) {
+                // Explorer can replace its taskbar while Windhawk is attaching.
+            }
+            Thread.Sleep(1000);
+        }
+        return false;
     }
 
     static string FindPython() {

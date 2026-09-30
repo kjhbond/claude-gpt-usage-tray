@@ -1,16 +1,14 @@
-# v1.1.1 · 독수리 아이콘 대신 한도 숫자 표시
+# v1.1.2 · 같은 작업 표시줄 숫자 위젯 표시 확인
 
-일부 PC에서 독수리 모양 아이콘만 보이는 문제를 다뤘습니다. 독수리는 한도 위젯이 아니라 포함된 Windhawk의 실행 아이콘이므로 숨겼습니다. Windows 작업 표시줄 모드가 붙지 못하면 알림 영역에 Codex·Claude 잔여율 숫자 아이콘을 자동으로 표시합니다. 아이콘에 마우스를 올리면 서비스, 잔여율, `월-일(요일) 시:분 한국시간` 리셋 시각이 나옵니다. 모드가 다시 동작하면 예비 아이콘은 자동으로 사라집니다.
+독수리 모양은 Windhawk 실행 아이콘이지 한도 위젯이 아닙니다. **v1.1.1에서 사용한 별도 알림 영역 숫자 아이콘 방식은 제거했습니다.** 이번 버전은 기존 화면과 같은 Codex·Claude 숫자 버튼을 Windows 작업 표시줄에 직접 표시합니다.
 
-예비 아이콘은 Windows의 숨겨진 아이콘 메뉴(`^`)에 있을 수 있습니다. 항상 보이게 하려면 알림 영역으로 끌어 놓으세요. 숫자 대신 `--%`가 보이는 경우는 별도의 CLI 로그인·조회 문제이므로 [문제 해결 안내](docs/TROUBLESHOOTING.md)를 확인하세요. 이 릴리스는 다른 PC의 Windhawk 호환성 원인을 확인한 것은 아닙니다.
+작업 표시줄 알림 영역의 `Grid`와 `StackPanel` 구조를 모두 처리하고, Explorer 시작 직후 작업 표시줄 창이 아직 없으면 나타날 때까지 재시도합니다. 새 Windows 빌드에서 XAML 루트를 찾을 때 사용하는 기본 오프셋도 Windhawk의 최근 구현에 맞췄습니다. 설치기는 실제 숫자 버튼이 보이는지 최대 45초 확인하고, 확인되지 않으면 성공 대신 경고와 종료 코드 `2`를 반환합니다. 이때 `%TEMP%\CodexClaudeQuotaTray-Setup.log`에 Windows 빌드와 확인 결과를 남깁니다.
 
-## 다운로드
+**[CodexClaudeQuotaTray-Setup.exe](https://github.com/kjhbond/claude-gpt-usage-tray/releases/download/v1.1.2/CodexClaudeQuotaTray-Setup.exe)** · Windows 11 x64
 
-**[CodexClaudeQuotaTray-Setup.exe](https://github.com/kjhbond/claude-gpt-usage-tray/releases/download/v1.1.1/CodexClaudeQuotaTray-Setup.exe)** · Windows 11 x64
+SHA-256: `FD1D1D2FC5A1B9D3E58D27588A2C102A7EDE9BE9C7098F61AA92895A8E9E1C54`
 
-SHA-256: `E47B03923DF6437BC109C2E5B606E51A6EE40D38471155855B3B1EBDBD454893`
-
-기존 사용자는 설치 파일을 다시 실행하면 됩니다. 표시 설정은 유지됩니다. 유지 관리자 PC에서 설치, 기본 위젯 표시, Windhawk 종료 시 두 예비 숫자 아이콘 표시, Windhawk 재시작 시 예비 아이콘 숨김을 확인했습니다.
+유지 관리자 PC에서 기존 설치 업데이트, 빈 Windhawk 데이터 폴더에서 모드 시작, 작업 표시줄의 두 숫자 버튼 표시, 설치기의 실제 표시 검증을 확인했습니다. 다른 PC의 정확한 Windows 빌드와 Windhawk 상태는 원격에서 확인할 수 없으므로, 그 PC에서 설치 경고가 나면 [문제 해결 안내](docs/TROUBLESHOOTING.md)를 보세요.
 
 ---
 

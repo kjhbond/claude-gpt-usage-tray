@@ -1,19 +1,19 @@
 # 문제 해결
 
-## 독수리 모양 아이콘만 보이고 한도 숫자는 없어요
+## 독수리 아이콘만 보이고 숫자 위젯이 없어요
 
-독수리 모양은 포함된 Windhawk의 실행 아이콘입니다. 사용량 아이콘이 아닙니다. v1.1.1부터 Windhawk 아이콘은 숨기고, 작업 표시줄 모드가 붙지 못한 PC에는 알림 영역에 숫자 아이콘을 자동으로 표시합니다. [최신 설치 파일](https://github.com/kjhbond/claude-gpt-usage-tray/releases/latest/download/CodexClaudeQuotaTray-Setup.exe)을 현재 Windows 사용자로 다시 실행하세요. 기존 표시 설정은 유지됩니다.
+독수리는 Windhawk 실행 아이콘이고 한도 위젯이 아닙니다. [v1.1.2 이상 설치 파일](https://github.com/kjhbond/claude-gpt-usage-tray/releases/latest/download/CodexClaudeQuotaTray-Setup.exe)을 **작업 표시줄을 사용하는 Windows 계정**에서 다시 실행하세요. 이 버전은 독수리 아이콘을 숨기고, 작업 표시줄의 `Grid`·`StackPanel` 구조와 Explorer 시작 지연에 대응합니다. 설치 후 숫자 버튼이 실제로 보이는지 확인하며, 확인하지 못하면 성공 대신 경고를 표시하고 종료 코드 2를 반환합니다. 별도 트레이 아이콘으로 대체하지 않습니다.
 
-숫자 아이콘도 `--%`이면 작업 표시줄 모드와 별도로 CLI 로그인·조회 상태를 확인하세요. 숫자 아이콘 자체가 안 보이면 작업 표시줄의 숨겨진 아이콘 메뉴(`^`)도 확인하고, 아래 절차를 따르세요. Windows 업데이트로 `taskbar.dll` 기호를 받을 수 없으면 Windhawk 모드가 붙지 않을 수 있습니다. [Windhawk 개발자의 설명](https://github.com/ramensoftware/windhawk-mods/discussions/4543)에 따르면 일부 Windows 빌드는 Microsoft 디버그 기호 미공개 또는 연결 차단 때문에 작업 표시줄 모드가 동작하지 않습니다. 이 경우 예비 숫자 아이콘은 계속 사용할 수 있습니다.
+경고가 나오면 `%TEMP%\CodexClaudeQuotaTray-Setup.log`의 마지막 줄에서 Windows 빌드와 `native widget visible=False`를 확인하세요. 모드가 작업 표시줄 기호를 받아야 하는 Windows 빌드에서는 인터넷 연결과 보안 프로그램의 `explorer.exe` 통신 차단 여부가 영향을 줄 수 있습니다. 일부 Windows 빌드에는 Microsoft 디버그 기호가 공개되지 않아 작업 표시줄 모드가 동작하지 않을 수 있다는 [Windhawk 개발자의 설명](https://github.com/ramensoftware/windhawk-mods/discussions/4543)도 있습니다. 이 경우 [오류 신고](https://github.com/kjhbond/claude-gpt-usage-tray/issues/new/choose)에 Windows 빌드와 **개인 경로를 지운** 설치 로그 마지막 줄을 남기세요.
 
 ## 두 아이콘이 모두 안 보여요
 
 1. Windows 11 x64에서 설치했는지 확인합니다.
-2. 작업 관리자에서 `windhawk.exe`, `FallbackTray.exe`, `pythonw.exe`가 실행 중인지 확인합니다.
+2. 작업 관리자에서 `windhawk.exe`, `pythonw.exe`가 실행 중인지 확인합니다.
 3. `%TEMP%\CodexClaudeQuotaTray-Setup.log`와 `%USERPROFILE%\CodexQuotaWidget\startup-error.txt`가 있으면 내용을 확인합니다.
 4. Windows에서 로그아웃한 뒤 다시 로그인합니다. Windows 업데이트 직후에는 Windhawk가 작업 표시줄 기호를 새로 찾는 데 인터넷 연결이 필요할 수 있습니다.
 
-설치가 완료되었다는 창이 떴더라도 Windows 작업 표시줄 버전과 Windhawk 모드 호환성에 따라 아이콘이 보이지 않을 수 있습니다. [이슈에 재현 정보 남기기](https://github.com/kjhbond/claude-gpt-usage-tray/issues/new/choose)를 참고하세요.
+설치 파일은 숫자 버튼을 확인해야 성공을 표시합니다. 확인 실패 경고는 파일 설치 후 작업 표시줄 연결을 검증하지 못했다는 뜻이며, `--%`로 표시되는 계정 조회 실패와는 다른 문제입니다.
 
 ## 한쪽 또는 양쪽이 `--%`로 보여요
 

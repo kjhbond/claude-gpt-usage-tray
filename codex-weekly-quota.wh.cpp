@@ -2,7 +2,7 @@
 // @id codex-weekly-quota
 // @name Codex and Claude weekly quota
 // @description Native XAML weekly quota beside the input indicator
-// @version 1.1.1
+// @version 1.1.2
 // @author Local
 // @include explorer.exe
 // @architecture x86-64
@@ -39,6 +39,8 @@ std::wstring WidgetPath(const wchar_t* filename) {
 }
 HWND g_taskbar;
 UINT_PTR g_timer;
+HANDLE g_retryThread;
+HANDLE g_stopRetry;
 void* CTaskBand_ITaskListWndSite_vftable;
 
 using CTaskBand_GetTaskbarHost_t = void*(WINAPI*)(void* pThis, void** result);
@@ -56,6 +58,7 @@ XamlRoot GetTaskbarXamlRoot(HWND hTaskbarWnd) {
     }
 
     void* taskBand = (void*)GetWindowLongPtr(hTaskSwWnd, 0);
+    if (!taskBand) return nullptr;
     void* taskBandForTaskListWndSite = taskBand;
     for (int i = 0; *(void**)taskBandForTaskListWndSite !=
                     CTaskBand_ITaskListWndSite_vftable;
@@ -70,11 +73,15 @@ XamlRoot GetTaskbarXamlRoot(HWND hTaskbarWnd) {
     void* taskbarHostSharedPtr[2]{};
     CTaskBand_GetTaskbarHost_Original(taskBandForTaskListWndSite,
                                       taskbarHostSharedPtr);
-    if (!taskbarHostSharedPtr[0] && !taskbarHostSharedPtr[1]) {
+    if (!taskbarHostSharedPtr[0] || !taskbarHostSharedPtr[1]) {
+        if (taskbarHostSharedPtr[1])
+            std__Ref_count_base__Decref_Original(taskbarHostSharedPtr[1]);
         return nullptr;
     }
 
-    size_t taskbarElementIUnknownOffset = 0x48;
+    // Current taskbar builds generally use 0x10. The symbol's machine code
+    // supplies the actual offset when it follows the known pattern.
+    size_t taskbarElementIUnknownOffset = 0x10;
 
 #if defined(_M_X64)
     {
@@ -97,6 +104,10 @@ XamlRoot GetTaskbarXamlRoot(HWND hTaskbarWnd) {
     auto* taskbarElementIUnknown =
         *(::IUnknown**)((BYTE*)taskbarHostSharedPtr[0] +
                       taskbarElementIUnknownOffset);
+    if (!taskbarElementIUnknown) {
+        std__Ref_count_base__Decref_Original(taskbarHostSharedPtr[1]);
+        return nullptr;
+    }
 
     FrameworkElement taskbarElement = nullptr;
     taskbarElementIUnknown->QueryInterface(winrt::guid_of<FrameworkElement>(),
@@ -194,6 +205,7 @@ bool HookTaskbarDllSymbols() {
 
 
 Controls::Grid g_grid{nullptr};
+Controls::StackPanel g_parentStack{nullptr};
 Controls::StackPanel g_widget{nullptr};
 Controls::TextBlock g_text{nullptr};
 Controls::Image g_logo{nullptr};
@@ -283,16 +295,41 @@ void RemoveWidget() {
   for(auto c:g_grid.Children())if(Controls::Grid::GetColumn(c.as<FrameworkElement>())>g_column)Controls::Grid::SetColumn(c.as<FrameworkElement>(),Controls::Grid::GetColumn(c.as<FrameworkElement>())-1);
   if(g_column>=0 && (uint32_t)g_column<g_grid.ColumnDefinitions().Size())g_grid.ColumnDefinitions().RemoveAt(g_column);
  }
+ if(g_parentStack && g_widget){
+  uint32_t i;
+  if(g_parentStack.Children().IndexOf(g_widget,i))g_parentStack.Children().RemoveAt(i);
+ }
  g_claudeText=nullptr;g_claudeLogo=nullptr;g_text=nullptr;g_logo=nullptr;g_codexButton=nullptr;g_claudeButton=nullptr;
- g_codexTip.clear();g_claudeTip.clear();g_widget=nullptr;g_grid=nullptr;g_column=-1;
+ g_codexTip.clear();g_claudeTip.clear();g_widget=nullptr;g_grid=nullptr;g_parentStack=nullptr;g_column=-1;
 }
 void InstallWidget(XamlRoot root) {
  auto e=FindNamed(root.Content(),L"SystemTrayFrameGrid");if(!e)return;
- auto grid=e.try_as<Controls::Grid>();if(!grid)return;
- if(g_grid==grid && g_widget)return;
+ auto grid=e.try_as<Controls::Grid>();
+ auto stack=e.try_as<Controls::StackPanel>();
+ if(!grid && !stack)return;
+ if(((grid && g_grid==grid)||(stack && g_parentStack==stack)) && g_widget)return;
  RemoveWidget();
- auto indicator=FindNamed(grid,L"NonActivatableStack");if(!indicator)return;
- int col=Controls::Grid::GetColumn(indicator);
+ int col=-1;
+ uint32_t stackIndex=0;
+ if(grid){
+  auto indicator=FindNamed(grid,L"NonActivatableStack");
+  if(!indicator)indicator=FindNamed(grid,L"NotifyIconStack");
+  if(!indicator)return;
+  col=Controls::Grid::GetColumn(indicator);
+ }else{
+  bool found=false;
+  for(uint32_t i=0;i<stack.Children().Size();i++){
+   auto child=stack.Children().GetAt(i).try_as<FrameworkElement>();
+   if(child && child.Name()==L"NonActivatableStack"){stackIndex=i;found=true;break;}
+  }
+  if(!found){
+   for(uint32_t i=0;i<stack.Children().Size();i++){
+    auto child=stack.Children().GetAt(i).try_as<FrameworkElement>();
+    if(child && child.Name()==L"NotifyIconStack"){stackIndex=i;found=true;break;}
+   }
+  }
+  if(!found){Wh_Log(L"Quota widget: no system tray anchor");return;}
+ }
  Controls::StackPanel widget;
  widget.Name(L"CodexWeeklyQuotaWidget");
  widget.Orientation(Controls::Orientation::Horizontal);
@@ -344,11 +381,13 @@ void InstallWidget(XamlRoot root) {
  auto claudeButton=MakeChatButton(claudeContent,true);claudeButton.Margin({14,0,0,0});widget.Children().Append(claudeButton);
  g_claudeText=claudeText;g_claudeLogo=claudeLogo;g_codexButton=codexButton;g_claudeButton=claudeButton;
 
- Controls::ColumnDefinition column;column.Width({1,GridUnitType::Auto});
- grid.ColumnDefinitions().InsertAt(col,column);
- for(auto c:grid.Children())if(Controls::Grid::GetColumn(c.as<FrameworkElement>())>=col)Controls::Grid::SetColumn(c.as<FrameworkElement>(),Controls::Grid::GetColumn(c.as<FrameworkElement>())+1);
- Controls::Grid::SetColumn(widget,col);grid.Children().Append(widget);
- g_grid=grid;g_widget=widget;g_text=text;g_logo=logo;g_column=col;
+ if(grid){
+  Controls::ColumnDefinition column;column.Width({1,GridUnitType::Auto});
+  grid.ColumnDefinitions().InsertAt(col,column);
+  for(auto c:grid.Children())if(Controls::Grid::GetColumn(c.as<FrameworkElement>())>=col)Controls::Grid::SetColumn(c.as<FrameworkElement>(),Controls::Grid::GetColumn(c.as<FrameworkElement>())+1);
+  Controls::Grid::SetColumn(widget,col);grid.Children().Append(widget);
+ }else stack.Children().InsertAt(stackIndex,widget);
+ g_grid=grid;g_parentStack=stack;g_widget=widget;g_text=text;g_logo=logo;g_column=col;
 }
 void CALLBACK Tick(HWND,UINT,UINT_PTR,DWORD) {
  try {
@@ -396,10 +435,37 @@ void CALLBACK Tick(HWND,UINT,UINT_PTR,DWORD) {
  catch(...){Wh_Log(L"Quota widget failed");}
 }
 BOOL Wh_ModInit(){return HookTaskbarDllSymbols();}
-void Wh_ModAfterInit(){
- g_taskbar=FindWindow(L"Shell_TrayWnd",nullptr);
- DWORD pid=0;GetWindowThreadProcessId(g_taskbar,&pid);
- if(pid!=GetCurrentProcessId())return;
- RunFromWindowThread(g_taskbar,[](void*){Tick(nullptr,0,0,0);g_timer=SetTimer(g_taskbar,0xC0DE120,1000,Tick);},nullptr);
+DWORD WINAPI WaitForTaskbar(void*){
+ while(WaitForSingleObject(g_stopRetry,500)==WAIT_TIMEOUT){
+  HWND taskbar=FindWindow(L"Shell_TrayWnd",nullptr);
+  if(!taskbar)continue;
+  DWORD pid=0;GetWindowThreadProcessId(taskbar,&pid);
+  if(pid && pid!=GetCurrentProcessId())return 0;
+  if(!pid)continue;
+  g_taskbar=taskbar;
+  if(RunFromWindowThread(taskbar,[](void*){
+   Tick(nullptr,0,0,0);
+   g_timer=SetTimer(g_taskbar,0xC0DE120,1000,Tick);
+  },nullptr))return 0;
+ }
+ return 0;
 }
-void Wh_ModBeforeUninit(){if(g_timer)RunFromWindowThread(g_taskbar,[](void*){KillTimer(g_taskbar,0xC0DE120);g_timer=0;RemoveWidget();},nullptr);}
+void Wh_ModAfterInit(){
+ g_stopRetry=CreateEventW(nullptr,TRUE,FALSE,nullptr);
+ if(!g_stopRetry){Wh_Log(L"Quota widget: retry event failed");return;}
+ g_retryThread=CreateThread(nullptr,0,WaitForTaskbar,nullptr,0,nullptr);
+ if(!g_retryThread)Wh_Log(L"Quota widget: retry thread failed");
+}
+void Wh_ModBeforeUninit(){
+ if(g_stopRetry)SetEvent(g_stopRetry);
+ if(g_retryThread){
+  while(MsgWaitForMultipleObjects(1,&g_retryThread,FALSE,INFINITE,QS_SENDMESSAGE)==WAIT_OBJECT_0+1){
+   MSG msg;PeekMessageW(&msg,nullptr,0,0,PM_NOREMOVE);
+  }
+  CloseHandle(g_retryThread);g_retryThread=nullptr;
+ }
+ if(g_stopRetry){CloseHandle(g_stopRetry);g_stopRetry=nullptr;}
+ if(g_timer && IsWindow(g_taskbar))RunFromWindowThread(g_taskbar,[](void*){
+  KillTimer(g_taskbar,0xC0DE120);g_timer=0;RemoveWidget();
+ },nullptr);
+}

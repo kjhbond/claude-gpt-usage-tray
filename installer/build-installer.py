@@ -12,10 +12,8 @@ SETUP = OUT / 'CodexClaudeQuotaTray-Setup.exe'
 files = {
     'CodexQuotaWidget.exe': ROOT / 'CodexQuotaWidget.exe',
     'QuotaSettings.exe': ROOT / 'QuotaSettings.exe',
-    'FallbackTray.exe': ROOT / 'FallbackTray.exe',
     'Launcher.cs': ROOT / 'Launcher.cs',
     'Settings.cs': ROOT / 'Settings.cs',
-    'FallbackTray.cs': ROOT / 'FallbackTray.cs',
     'quota.py': ROOT / 'quota.py',
     'claude_quota.py': ROOT / 'claude_quota.py',
     'display_state.py': ROOT / 'display_state.py',
@@ -53,7 +51,11 @@ with ZipFile(PAYLOAD, 'w', ZIP_DEFLATED, compresslevel=6) as zip_file:
 
 compiler = Path('C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe')
 args = [str(compiler), '/nologo', '/target:winexe', '/optimize+', '/r:System.Windows.Forms.dll',
-        '/r:System.IO.Compression.dll', '/resource:' + str(PAYLOAD) + ',Payload',
+        '/r:System.IO.Compression.dll',
+        '/r:C:/Windows/Microsoft.NET/Framework64/v4.0.30319/WPF/UIAutomationClient.dll',
+        '/r:C:/Windows/Microsoft.NET/Framework64/v4.0.30319/WPF/UIAutomationTypes.dll',
+        '/r:C:/Windows/Microsoft.NET/Framework64/v4.0.30319/WPF/WindowsBase.dll',
+        '/resource:' + str(PAYLOAD) + ',Payload',
         '/out:' + str(SETUP), str(ROOT / 'installer/Setup.cs')]
 subprocess.run(args, check=True)
 print(SETUP)

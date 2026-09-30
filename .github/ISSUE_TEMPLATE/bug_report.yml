@@ -16,6 +16,7 @@ body:
         - Codex 한도
         - Claude Code 한도
         - 작업 표시줄 아이콘 또는 메뉴
+        - 독수리 아이콘만 보임 · 숫자 위젯 없음
         - 기타
     validations:
       required: true
@@ -48,4 +49,4 @@ body:
     id: sanitized
     attributes:
       label: 개인정보를 지운 오류 정보
-      description: reason 값이나 설치 로그의 오류 부분만 적어 주세요. 개인 경로와 계정 정보를 지워 주세요.
+      description: 숫자 위젯이 없다면 설치 로그 마지막 줄의 Windows build와 native widget visible 값도 적어 주세요. 개인 경로와 계정 정보는 지워 주세요. --% 문제는 reason 값만 적어 주세요.

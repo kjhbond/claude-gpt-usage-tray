@@ -39,7 +39,7 @@ claude
 1. [최신 설치 파일](https://github.com/kjhbond/claude-gpt-usage-tray/releases/latest/download/CodexClaudeQuotaTray-Setup.exe)을 다운로드합니다.
 2. 원하면 [릴리스 페이지](https://github.com/kjhbond/claude-gpt-usage-tray/releases/latest)의 SHA-256과 다운로드 파일을 비교합니다.
 3. 파일을 실행합니다. 관리자 권한은 필요하지 않습니다. 파일은 `%USERPROFILE%\CodexQuotaWidget`에 설치됩니다.
-4. 처음에는 작업 표시줄 오른쪽에 ChatGPT·Claude 아이콘이 모두 나타납니다. 아래의 표시 설정에서 사용하지 않는 서비스를 숨깁니다. 표시 중인 서비스는 약 2분마다 다시 조회합니다.
+4. 설치기가 작업 표시줄 오른쪽의 ChatGPT·Claude 숫자 버튼을 확인하면 완료를 알립니다. 확인 실패 경고가 나오면 [작업 표시줄 문제 해결](TROUBLESHOOTING.md)을 확인하세요. 아래의 표시 설정에서 사용하지 않는 서비스를 숨길 수 있습니다. 표시 중인 서비스는 약 2분마다 다시 조회합니다.
 
 체크섬 확인 명령:
 
